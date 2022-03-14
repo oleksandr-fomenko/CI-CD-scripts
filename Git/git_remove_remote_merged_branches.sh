@@ -1,0 +1,1 @@
+git branch -r --merged | grep -v master | grep -v release | sed 's/origin\//:/' | xargs -n 20 git push origin
