@@ -26,3 +26,6 @@ class AzureRepositoryService():
         }
         response = requests.post(url=f"{self.url}/pullRequests/{pr_id}/threads?api-version={self.api_version}", json=data, headers=self.headers)
         return response
+
+    def ui_link_to_pr(self, project_name: str, repository_name: str, pr_id: str):
+        return f"{self.organization_uri}{project_name}/_git/{repository_name}/pullrequest/{pr_id}"
