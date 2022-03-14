@@ -18,3 +18,8 @@ class RpService():
         if self.rp_mode == "Debug":
             rp_mode_add = "/userdebug"
         return f"{self.rp_domen}/ui/#{self.rp_project}{rp_mode_add}/all/{launchId}" 
+
+    def get_rp_results_by_id(self, launchId: str):
+        response = requests.get(url=f"{self.url}/launch/uuid/{launchId}", headers=self.headers)
+        print(response.text)
+        return json.loads(response.text)
