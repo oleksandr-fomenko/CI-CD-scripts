@@ -21,5 +21,4 @@ class RpService():
 
     def get_rp_results_by_id(self, launchId: str):
         response = requests.get(url=f"{self.url}/launch/uuid/{launchId}", headers=self.headers)
-        print(response.text)
         return json.loads(response.text)
