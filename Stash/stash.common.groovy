@@ -78,5 +78,12 @@ Map<String, String> GET_PR_DATA(def bitbucketPayload, def prIdFromJob) {
 	return result
 }
 
+def POST_PR_RESULTS_TO_STASH(def prId, def message){
+	withCredentials([usernamePassword(credentialsId: STASH_CRED_ID(), passwordVariable: 'STASH_PWD', usernameVariable: 'STASH_USER')]) {
+		def url = "${STASH_PROJECT_PR_URL()}/${prId}/comments"
+		def requestCurl = "curl -H 'Accept: application/json' -H 'Content-type: application/json' -k -X POST -d '{\"text\":\"${message}\"}' -u ${STASH_USER}:${STASH_PWD} ${url}"
+		return sh(script: "${requestCurl}", returnStdout: true)
+	}
+}
 
 return this
