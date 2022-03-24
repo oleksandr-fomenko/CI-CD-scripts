@@ -10,4 +10,21 @@ String GET_UI_COOKIE(def testRailUri, def username, def password) {
         .split(": ").last()
 }
 
+String DOWNLOAD_SUITE(def testRailUri, def suiteId, def cookie) {
+    def downloadSuiteRequest = "curl -X GET '${testRailUri}/index.php?/suites/export/${suiteId}' --header 'Cookie: ${cookie}'"
+	
+	return sh(script: downloadSuiteRequest, returnStdout: true)
+}
+
+def DOWNLOAD_SUITES(def testRailUri, def suiteIds, def cookie) {
+	def resultList = []
+	
+	suiteIds.each{
+		def suiteContent = DOWNLOAD_SUITE(testRailUri, it, cookie)
+		resultList.add(suiteContent)
+	}
+	
+	return resultList
+}
+
 return this
