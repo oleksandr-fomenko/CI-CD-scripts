@@ -42,5 +42,41 @@ String PULL_REQUEST_UI_MESSAGE(def prId){
 	return "Pull Request - [${url}](${url})"
 }
 
+Map<String, String> GET_PR_DATA(def bitbucketPayload, def prIdFromJob) {
+	String prId = null
+	String branch = null
+	echo "STASH_PAYLOAD: ${bitbucketPayload}" 
+	
+	if (bitbucketPayload) {
+		echo "Checkout to the PR from the Bitbucket web-hook"
+        try {
+			def payload = new groovy.json.JsonSlurper().parseText(bitbucketPayload)
+			prId = payload.pullRequest.id
+			branch = payload.pullRequest.fromRef.displayId
+		} catch (NotSerializableException ex){
+			// ignore this exception
+		}
+    } else {
+		echo "Checkout to the PR from the parameter"
+        prId = prIdFromJob
+		
+		withCredentials([usernamePassword(credentialsId: STASH_CRED_ID(), passwordVariable: 'STASH_PWD', usernameVariable: 'STASH_USER')]) {
+			def url = "${STASH_PROJECT_PR_URL()}/${prIdFromJob}"
+			def requestCurl = "curl -H 'Accept: application/json' -H 'Content-type: application/json' -k -u ${STASH_USER}:${STASH_PWD} ${url}"
+			def requestedPayload = sh(script: "${requestCurl}", returnStdout: true)
+			try {
+				def payload = new groovy.json.JsonSlurper().parseText(requestedPayload)
+				branch = payload.fromRef.displayId
+			} catch (NotSerializableException ex){
+			// ignore this exception
+			} 
+		}
+	}
+	
+	def result = ["PR_ID":prId, "BRANCH": "origin/"+ branch]
+	echo "RESULT=${result}"
+	return result
+}
+
 
 return this
