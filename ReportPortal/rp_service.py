@@ -22,3 +22,24 @@ class RpService():
     def get_rp_results_by_id(self, launchId: str):
         response = requests.get(url=f"{self.url}/launch/uuid/{launchId}", headers=self.headers)
         return json.loads(response.text)
+
+    def get_rp_launches_by(self, rp_launch_name: str, rp_page_number: int, rp_size: int):
+        response = requests.get(url=f"{self.url}/launch?filter.cnt.name={rp_launch_name}&page.sort=startTime,number,ASC&page.page={rp_page_number}&page.size={rp_size}", headers=self.headers)
+        return json.loads(response.text)
+
+    def get_rp_launches_content_by(self, rp_launch_name: str):
+        results = []
+        rp_page_number = 1
+        rp_size = 100
+        total_pages = 1
+        body = self.get_rp_launches_by(rp_launch_name, rp_page_number, rp_size)
+
+        rp_size = body["page"]["size"]
+        total_pages = body["page"]["totalPages"]
+
+        results.extend(body["content"])
+
+        for currrectrp_page_number in range(2, total_pages + 1):
+            body = self.get_rp_launches_by(rp_launch_name, currrectrp_page_number, rp_size)
+            results.extend(body["content"])
+        return results
